@@ -8,27 +8,29 @@ import {
     uploadAvatar,
     deleteUser
 } from '../controllers/userController';
-// import authMiddleware from '../middleware/authMiddleware';
 import {authenticateToken, isAdmin} from "../middleware/authenticateToken";
 
 const router = Router();
-//
-// router.post('/register', createUser);
-// router.get('/', authMiddleware, getUsers);
-// router.post('/login', loginUser);
-// router.put('/:id', authMiddleware, updateUser);
-// router.put('/:id', authenticateToken, getCurrentUser);
-// router.post('/upload', authMiddleware, uploadAvatar);
 
+// Регистрация нового пользователя
 router.post('/register', createUser);
+
+// Получение списка пользователей, доступно только аутентифицированным пользователям
 router.get('/', authenticateToken, getUsers);
+
+// Вход пользователя
 router.post('/login', loginUser);
+
+// Обновление информации о пользователе
 router.put('/:id', authenticateToken, updateUser);
+
+// Получение информации о текущем пользователе
 router.get('/me', authenticateToken, getCurrentUser);
+
 // Маршрут для загрузки аватара
 router.post('/upload-avatar', authenticateToken, uploadAvatar);
-router.delete('/:id', authenticateToken, isAdmin, deleteUser);
 
-// router.post('/users/:id/avatar', authenticateToken, uploadAvatar);
+// Удаление пользователя доступно только администратору
+router.delete('/:id', authenticateToken, isAdmin, deleteUser);
 
 export default router;

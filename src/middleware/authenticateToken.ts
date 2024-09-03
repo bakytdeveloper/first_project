@@ -2,6 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel';
 
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).send('Access denied');
+    }
+    next();
+};
+
+
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Получаем токен из заголовка
@@ -24,10 +33,3 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     });
 };
 
-
-export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-    if (req.user?.role !== 'admin') {
-        return res.status(403).send('Access denied');
-    }
-    next();
-};
