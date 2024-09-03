@@ -78,6 +78,7 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 };
 
+
 //   контроллер для удаления пользователя.
 export const deleteUser = async (req: Request, res: Response) => {
     const userId = req.params.id;
