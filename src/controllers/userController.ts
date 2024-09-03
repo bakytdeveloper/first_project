@@ -6,6 +6,29 @@ import multer from 'multer';
 import path from 'path';
 
 // Настройки multer
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'uploads/avatars/');
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, Date.now() + path.extname(file.originalname));
+//     }
+// });
+// const upload = multer({ storage });
+//
+// export const uploadAvatar = (req: Request, res: Response) => {
+//     upload.single('avatar')(req, res, (err) => {
+//         if (err) {
+//             return res.status(500).send('Error uploading file');
+//         }
+//         if (!req.file) {
+//             return res.status(400).send('No file uploaded');
+//         }
+//         res.send(`File uploaded: ${req.file.filename}`);
+//     });
+// };
+
+
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/avatars/');
@@ -14,7 +37,16 @@ const storage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
+
 const upload = multer({ storage });
+
+export const uploadAvatar = (req: Request, res: Response) => {
+    upload.single('avatar')(req, res, (err) => {
+        if (err) return res.status(500).send('Error uploading file');
+        res.send(`File uploaded: ${req.file?.filename}`);
+    });
+};
+
 
 export const createUser = async (req: Request, res: Response) => {
     const { email, password, role } = req.body;
@@ -72,10 +104,10 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 };
 
-// Загрузка аватара
-export const uploadAvatar = (req: Request, res: Response) => {
-    upload.single('avatar')(req, res, (err) => {
-        if (err) return res.status(500).send('Error uploading file');
-        res.send(`File uploaded: ${req.file?.filename}`);
-    });
-};
+// // Загрузка аватара
+// export const uploadAvatar = (req: Request, res: Response) => {
+//     upload.single('avatar')(req, res, (err) => {
+//         if (err) return res.status(500).send('Error uploading file');
+//         res.send(`File uploaded: ${req.file?.filename}`);
+//     });
+// };
