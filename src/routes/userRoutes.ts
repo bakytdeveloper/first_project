@@ -1,7 +1,15 @@
 import { Router } from 'express';
-import { createUser, getUsers, loginUser, getCurrentUser, updateUser, uploadAvatar } from '../controllers/userController';
+import {
+    createUser,
+    getUsers,
+    loginUser,
+    getCurrentUser,
+    updateUser,
+    uploadAvatar,
+    deleteUser
+} from '../controllers/userController';
 // import authMiddleware from '../middleware/authMiddleware';
-import {authenticateToken} from "../middleware/authenticateToken";
+import {authenticateToken, isAdmin} from "../middleware/authenticateToken";
 
 const router = Router();
 //
@@ -19,6 +27,8 @@ router.put('/:id', authenticateToken, updateUser);
 router.get('/me', authenticateToken, getCurrentUser);
 // Маршрут для загрузки аватара
 router.post('/upload-avatar', authenticateToken, uploadAvatar);
+router.delete('/:id', authenticateToken, isAdmin, deleteUser);
+
 // router.post('/users/:id/avatar', authenticateToken, uploadAvatar);
 
 export default router;

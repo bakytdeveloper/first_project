@@ -78,6 +78,21 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 };
 
+//   контроллер для удаления пользователя.
+export const deleteUser = async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    try {
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        res.send('User deleted successfully');
+    } catch (error) {
+        res.status(500).send('Error deleting user');
+    }
+};
+
+
 
 // Функция для создания директории, если она не существует
 const ensureDirExists = (dir: string) => {

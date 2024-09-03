@@ -23,3 +23,11 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
         }
     });
 };
+
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).send('Access denied');
+    }
+    next();
+};
