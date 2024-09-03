@@ -16,7 +16,9 @@ router.post('/register', createUser);
 router.get('/', authenticateToken, getUsers);
 router.post('/login', loginUser);
 router.put('/:id', authenticateToken, updateUser);
-router.get('/:id', authenticateToken, getCurrentUser);
-router.post('/upload', authenticateToken, uploadAvatar);
+router.get('/me', authenticateToken, getCurrentUser);
+// Маршрут для загрузки аватара
+router.post('/upload-avatar', authenticateToken, uploadAvatar);
+// router.post('/users/:id/avatar', authenticateToken, uploadAvatar);
 
 export default router;
