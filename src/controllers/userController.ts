@@ -91,6 +91,18 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 };
 
+// Получение информации о текущем пользователе
+export const getCurrentUser = async (req: Request, res: Response) => {
+    try {
+        // Доступ к текущему пользователю через req.user
+        if (!req.user) return res.status(404).send('User not found');
+        res.json(req.user);
+    } catch (error) {
+        res.status(500).send('Error fetching user');
+    }
+};
+
+
 // Обновление пользователя
 export const updateUser = async (req: Request, res: Response) => {
     const userId = req.params.id;
