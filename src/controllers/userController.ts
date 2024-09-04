@@ -129,7 +129,8 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Ограничение размера файла 5 МБ
+    // Ограничил размера файла 1 МБ
+    limits: { fileSize: 1 * 1024 * 1024 }
 });
 
 // Контроллер для загрузки аватара
