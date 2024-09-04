@@ -7,13 +7,36 @@ import path from 'path';
 import * as fs from "fs";
 import {SortOrder} from "mongoose";
 
-// создание пользователя (регистрация)
+
+// Регулярное выражение для проверки email
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Регулярное выражение для проверки пароля (например, минимум 8 символов, одна цифра, одна буква)
+const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+// Создание пользователя (регистрация)
 export const createUser = async (req: Request, res: Response) => {
     const { email, password, role } = req.body;
+
+    // Проверка формата email
+    if (!emailRegex.test(email)) {
+        return res.status(400).send('Invalid email format');
+    }
+
+    // Проверка формата пароля
+    if (!passwordRegex.test(password)) {
+        return res.status(400).send('Password must be at least 8 characters long and contain both letters and numbers');
+    }
+
     try {
         // Проверка существующего пользователя
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).send('User already exists');
+
+        // Проверка, существует ли уже администратор
+        if (role === 'admin') {
+            const adminUser = await User.findOne({ role: 'admin' });
+            if (adminUser) return res.status(400).send('An admin already exists');
+        }
 
         // Хэширование пароля
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -23,6 +46,49 @@ export const createUser = async (req: Request, res: Response) => {
         res.status(201).send('User created');
     } catch (error) {
         res.status(500).send('Error creating user');
+    }
+};
+
+
+// Аутентификация пользователя (логин)
+export const loginUser = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).send('Email and password are required');
+    }
+
+    // Проверка формата email
+    if (!emailRegex.test(email)) {
+        return res.status(400).send('Invalid email format');
+    }
+
+    // Проверка формата пароля
+    if (!passwordRegex.test(password)) {
+        return res.status(400).send('Invalid password format');
+    }
+
+    try {
+        // Поиск пользователя по email
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).send('Invalid email or password');
+
+        // Сравнение паролей
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).send('Invalid email or password');
+
+        // Генерация токена с включением роли пользователя
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET || 'your-secret-key',
+            { expiresIn: '10h' }
+        );
+
+        // Отправка токена
+        res.json({ token });
+    } catch (error) {
+        console.error('Error logging in:', error);
+        res.status(500).send('Error logging in');
     }
 };
 
@@ -72,89 +138,6 @@ export const getUsers = async (req: Request, res: Response) => {
 };
 
 
-// // Аутентификация пользователя (логин)
-// export const loginUser = async (req: Request, res: Response) => {
-//     const { email, password } = req.body;
-//     try {
-//         const user = await User.findOne({ email });
-//         if (!user) return res.status(400).send('Invalid email or password');
-//
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch) return res.status(400).send('Invalid email or password');
-//
-//         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '1h' });
-//         res.json({ token });
-//     } catch (error) {
-//         res.status(500).send('Error logging in');
-//     }
-// };
-
-
-// // Аутентификация пользователя (логин)
-// export const loginUser = async (req: Request, res: Response) => {
-//     const { email, password } = req.body;
-//
-//     if (!email || !password) {
-//         return res.status(400).send('Email and password are required');
-//     }
-//
-//     try {
-//         // Поиск пользователя по email
-//         const user = await User.findOne({ email });
-//         if (!user) return res.status(400).send('Invalid  email');
-//         // if (!user) return res.status(400).send('Invalid  email or password');
-//
-//         // Сравнение паролей
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch) return res.status(400).send('Invalid email or password');
-//
-//         // Генерация токена
-//         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '1h' });
-//
-//         // Отправка токена
-//         res.json({ token });
-//     } catch (error) {
-//         console.error('Error logging in:', error); // Логирование ошибки
-//         res.status(500).send('Error logging in');
-//     }
-// };
-
-
-// Аутентификация пользователя (логин)
-export const loginUser = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).send('Email and password are required');
-    }
-
-    try {
-        // Поиск пользователя по email
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).send('Invalid email or password');
-
-        // Сравнение паролей
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).send('Invalid email or password');
-
-        // Генерация токена с включением роли пользователя
-        const token = jwt.sign(
-            { id: user._id, role: user.role },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '1h' }
-        );
-
-        // Отправка токена
-        res.json({ token });
-    } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).send('Error logging in');
-    }
-};
-
-
-
-
 
 // Получение информации о текущем пользователе
 export const getCurrentUser = async (req: Request, res: Response) => {
@@ -182,7 +165,7 @@ export const updateUser = async (req: Request, res: Response) => {
 };
 
 
-//   контроллер для удаления пользователя.
+//   Контроллер для удаления пользователя.
 export const deleteUser = async (req: Request, res: Response) => {
     const userId = req.params.id;
     try {
@@ -197,8 +180,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 
-//  Сделал полный функционал для манипулирования аватарками
-
+//  Здесь Сделал полный функционал для манипулирования аватарками
 // Функция для создания директории, если она не существует
 const ensureDirExists = (dir: string) => {
     if (!fs.existsSync(dir)) {

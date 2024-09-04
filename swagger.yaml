@@ -240,7 +240,7 @@ paths:
           description: Ошибка сервера
 
     put:
-      summary: Обновление задачи
+      summary: Обновление задачи, только админ
       security:
         - bearerAuth: []
       parameters:
@@ -269,7 +269,7 @@ paths:
           description: Ошибка сервера
 
     delete:
-      summary: Удаление задачи
+      summary: Удаление задачи, только админом
       security:
         - bearerAuth: []
       parameters:

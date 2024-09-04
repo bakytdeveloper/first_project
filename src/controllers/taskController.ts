@@ -15,27 +15,9 @@ export const createTask = async (req: Request, res: Response) => {
     }
 };
 
+
 // //   получение всех задач, если у тебя токин админа, а если у тебя токин
 // //   определённого пользователя, то получает только свои задачи
-// export const getTasks = async (req: Request, res: Response) => {
-//     try {
-//         let tasks;
-//         // Проверяем, если роль пользователя - admin, получаем все задачи
-//         if (req.user?.role === 'admin') {
-//             tasks = await Task.find();
-//         } else {
-//             // В противном случае получаем задачи только текущего пользователя
-//             tasks = await Task.find({ userId: req.user?.id });
-//         }
-//         res.json(tasks);
-//     } catch (error) {
-//         res.status(500).send('Error fetching tasks');
-//     }
-// };
-
-
-
-
 export const getTasks = async (req: Request, res: Response) => {
     try {
         // Получение параметров запроса
@@ -86,10 +68,6 @@ export const getTasks = async (req: Request, res: Response) => {
 
 
 
-
-
-
-
 //  Обновление задачи
 export const updateTask = async (req: Request, res: Response) => {
     const taskId = req.params.id;
@@ -132,19 +110,4 @@ export const deleteTask = async (req: Request, res: Response) => {
         res.status(500).send('Error deleting task');
     }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

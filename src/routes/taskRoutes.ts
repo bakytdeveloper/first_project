@@ -13,7 +13,7 @@ router.post('/', authenticateToken, isAdmin, createTask);
 router.get('/', authMiddleware, getTasks);
 
 // Получение задачи по id задачи (для администратора)
-router.get('/:id', authenticateToken, isAdmin, getTaskById);
+router.get('/:id', authenticateToken, getTaskById);
 
 // Обновление задачи по id (для администратора)
 router.put('/:id', authenticateToken, isAdmin, updateTask);
