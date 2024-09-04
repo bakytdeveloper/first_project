@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel';
 
-
+// дделает доступ только админу
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     if (req.user?.role !== 'admin') {
         return res.status(403).send('Access denied');
@@ -10,7 +10,7 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
     next();
 };
 
-
+//  делает доступ только после аутентификации
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Получаем токен из заголовка

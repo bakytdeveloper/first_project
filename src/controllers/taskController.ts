@@ -14,23 +14,8 @@ export const createTask = async (req: Request, res: Response) => {
     }
 };
 
-
-// export const getTasks = async (req: Request, res: Response) => {
-//     try {
-//         // Если запрос от администратора, возвращаем все задачи
-//         if (req.user?.role === 'admin') {
-//             const tasks = await Task.find();
-//             return res.json(tasks);
-//         }
-//
-//         // Если запрос от обычного пользователя, возвращаем только его задачи
-//         const tasks = await Task.find({ userId: req.user?.id });
-//         res.json(tasks);
-//     } catch (error) {
-//         res.status(500).send('Error fetching tasks');
-//     }
-// };
-
+//   получение всех задач, если у тебя токин админа, а если у тебя токин
+//   определённого пользователя, то получает только свои задачи
 export const getTasks = async (req: Request, res: Response) => {
     try {
         let tasks;
@@ -49,7 +34,7 @@ export const getTasks = async (req: Request, res: Response) => {
 
 
 
-
+//  Обновление задачи
 export const updateTask = async (req: Request, res: Response) => {
     const taskId = req.params.id;
     const updateData = req.body;
@@ -64,13 +49,13 @@ export const updateTask = async (req: Request, res: Response) => {
 };
 
 
-// Получение задачи по id (для администратора)
 // Получение задачи по id
 export const getTaskById = async (req: Request, res: Response) => {
     const taskId = req.params.id;
 
     try {
-        const task = await Task.findById(taskId).populate('userId', 'name'); // Опционально: populate для получения информации о пользователе
+        // Опционально: populate для получения информации о пользователе
+        const task = await Task.findById(taskId).populate('userId', 'name');
         if (!task) return res.status(404).send('Task not found');
         res.json(task);
     } catch (error) {
