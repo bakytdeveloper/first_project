@@ -6,10 +6,11 @@ import {authenticateToken, isAdmin} from "../middleware/authenticateToken";
 const router = Router();
 
 // Создание задачи (для администратора)
-router.post('/', authMiddleware, createTask);
+router.post('/', authenticateToken, isAdmin, createTask);
+// router.post('/', authMiddleware, createTask);
 
 // Получение всех задач
-router.get('/', authMiddleware, getTasks);
+router.get('/', authMiddleware, isAdmin, getTasks);
 
 // Получение задачи по id (для администратора)
 router.get('/:id', authMiddleware, getTaskById);
@@ -18,6 +19,6 @@ router.get('/:id', authMiddleware, getTaskById);
 router.put('/:id', authenticateToken, isAdmin, updateTask);
 
 // Удаление задачи по id
-router.delete('/:id', authMiddleware, deleteTask);
+router.delete('/:id', authMiddleware, isAdmin, deleteTask);
 
 export default router;
