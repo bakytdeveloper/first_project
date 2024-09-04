@@ -10,10 +10,10 @@ router.post('/', authenticateToken, isAdmin, createTask);
 // router.post('/', authMiddleware, createTask);
 
 // Получение всех задач
-router.get('/', authMiddleware, isAdmin, getTasks);
+router.get('/', authMiddleware, getTasks);
 
-// Получение задачи по id (для администратора)
-router.get('/:id', authMiddleware, getTaskById);
+// Получение задачи по id задачи (для администратора)
+router.get('/:id', authenticateToken, isAdmin, getTaskById);
 
 // Обновление задачи по id (для администратора)
 router.put('/:id', authenticateToken, isAdmin, updateTask);

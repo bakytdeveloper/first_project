@@ -15,21 +15,39 @@ export const createTask = async (req: Request, res: Response) => {
 };
 
 
+// export const getTasks = async (req: Request, res: Response) => {
+//     try {
+//         // Если запрос от администратора, возвращаем все задачи
+//         if (req.user?.role === 'admin') {
+//             const tasks = await Task.find();
+//             return res.json(tasks);
+//         }
+//
+//         // Если запрос от обычного пользователя, возвращаем только его задачи
+//         const tasks = await Task.find({ userId: req.user?.id });
+//         res.json(tasks);
+//     } catch (error) {
+//         res.status(500).send('Error fetching tasks');
+//     }
+// };
+
 export const getTasks = async (req: Request, res: Response) => {
     try {
-        // Если запрос от администратора, возвращаем все задачи
+        let tasks;
+        // Проверяем, если роль пользователя - admin, получаем все задачи
         if (req.user?.role === 'admin') {
-            const tasks = await Task.find();
-            return res.json(tasks);
+            tasks = await Task.find();
+        } else {
+            // В противном случае получаем задачи только текущего пользователя
+            tasks = await Task.find({ userId: req.user?.id });
         }
-
-        // Если запрос от обычного пользователя, возвращаем только его задачи
-        const tasks = await Task.find({ userId: req.user?.id });
         res.json(tasks);
     } catch (error) {
         res.status(500).send('Error fetching tasks');
     }
 };
+
+
 
 
 export const updateTask = async (req: Request, res: Response) => {
@@ -47,6 +65,7 @@ export const updateTask = async (req: Request, res: Response) => {
 
 
 // Получение задачи по id (для администратора)
+// Получение задачи по id
 export const getTaskById = async (req: Request, res: Response) => {
     const taskId = req.params.id;
 
