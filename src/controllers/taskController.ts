@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Task from '../models/taskModel';
+import {SortOrder} from "mongoose";
 
 // Создание задачи
 export const createTask = async (req: Request, res: Response) => {
@@ -14,23 +15,75 @@ export const createTask = async (req: Request, res: Response) => {
     }
 };
 
-//   получение всех задач, если у тебя токин админа, а если у тебя токин
-//   определённого пользователя, то получает только свои задачи
+// //   получение всех задач, если у тебя токин админа, а если у тебя токин
+// //   определённого пользователя, то получает только свои задачи
+// export const getTasks = async (req: Request, res: Response) => {
+//     try {
+//         let tasks;
+//         // Проверяем, если роль пользователя - admin, получаем все задачи
+//         if (req.user?.role === 'admin') {
+//             tasks = await Task.find();
+//         } else {
+//             // В противном случае получаем задачи только текущего пользователя
+//             tasks = await Task.find({ userId: req.user?.id });
+//         }
+//         res.json(tasks);
+//     } catch (error) {
+//         res.status(500).send('Error fetching tasks');
+//     }
+// };
+
+
+
+
 export const getTasks = async (req: Request, res: Response) => {
     try {
-        let tasks;
-        // Проверяем, если роль пользователя - admin, получаем все задачи
-        if (req.user?.role === 'admin') {
-            tasks = await Task.find();
-        } else {
-            // В противном случае получаем задачи только текущего пользователя
-            tasks = await Task.find({ userId: req.user?.id });
+        // Получение параметров запроса
+        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'asc', ...filters } = req.query;
+
+        // Преобразование параметров
+        const pageNumber = parseInt(page as string, 10);
+        const pageSize = parseInt(limit as string, 10);
+        const sortOrderValue: SortOrder = sortOrder === 'desc' ? -1 : 1; // Используем 1 или -1 для сортировки
+
+        // Построение запроса с фильтрацией
+        const query: Record<string, any> = {}; // Типизация query как Record<string, any>
+        if (req.user?.role !== 'admin') {
+            query.userId = req.user?.id; // Фильтрация задач текущего пользователя, если не админ
         }
-        res.json(tasks);
+        for (const [key, value] of Object.entries(filters)) {
+            query[key] = value;
+        }
+
+        // Проверка, что sortBy является допустимым полем
+        if (typeof sortBy !== 'string') {
+            return res.status(400).send('Invalid sort field');
+        }
+
+        // Получение задач с фильтрацией, сортировкой и пагинацией
+        const tasks = await Task.find(query)
+            .sort({ [sortBy]: sortOrderValue }) // Теперь используется 1 или -1
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize);
+
+        // Подсчет общего количества задач
+        const totalTasks = await Task.countDocuments(query);
+
+        res.json({
+            data: tasks,
+            page: pageNumber,
+            pageSize: pageSize,
+            total: totalTasks,
+            totalPages: Math.ceil(totalTasks / pageSize),
+        });
     } catch (error) {
         res.status(500).send('Error fetching tasks');
     }
 };
+
+
+
+
 
 
 
