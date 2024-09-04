@@ -6,7 +6,7 @@ import multer from 'multer';
 import path from 'path';
 import * as fs from "fs";
 
-
+// создание пользователя (регистрация)
 export const createUser = async (req: Request, res: Response) => {
     const { email, password, role } = req.body;
     try {
@@ -26,7 +26,7 @@ export const createUser = async (req: Request, res: Response) => {
 };
 
 
-
+//  получение всех пользователей, сделал только доступ для админа
 export const getUsers = async (req: Request, res: Response) => {
     try {
         const users = await User.find();
@@ -36,7 +36,7 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 };
 
-// Аутентификация пользователя
+// Аутентификация пользователя (логин)
 export const loginUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     try {
@@ -94,6 +94,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 
+//  Сделал полный функционал для манипулирования аватарками
 
 // Функция для создания директории, если она не существует
 const ensureDirExists = (dir: string) => {

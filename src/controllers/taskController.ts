@@ -73,19 +73,39 @@ export const createTask = async (req: Request, res: Response) => {
     }
 };
 
-// Получение задач
-export const getTasks = async (req: Request, res: Response) => {
-    const { userId } = req.query;
+// // Получение задач
+// export const getTasks = async (req: Request, res: Response) => {
+//     const { userId } = req.query;
+//
+//     try {
+//         // Если `userId` указан, фильтруем задачи по пользователю
+//         const filter = userId ? { userId } : {};
+//         const tasks = await Task.find(filter);
+//         res.json(tasks);
+//     } catch (error) {
+//         res.status(500).send('Error fetching tasks');
+//     }
+// };
 
+
+export const getTasks = async (req: Request, res: Response) => {
     try {
-        // Если `userId` указан, фильтруем задачи по пользователю
-        const filter = userId ? { userId } : {};
-        const tasks = await Task.find(filter);
+        // Если запрос от администратора, возвращаем все задачи
+        if (req.user?.role === 'admin') {
+            const tasks = await Task.find();
+            return res.json(tasks);
+        }
+
+        // Если запрос от обычного пользователя, возвращаем только его задачи
+        const tasks = await Task.find({ userId: req.user?.id });
         res.json(tasks);
     } catch (error) {
         res.status(500).send('Error fetching tasks');
     }
 };
+
+
+
 
 // Обновление задачи
 export const updateTask = async (req: Request, res: Response) => {
