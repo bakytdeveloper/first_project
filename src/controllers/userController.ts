@@ -40,15 +40,60 @@ export const createUser = async (req: Request, res: Response) => {
 
 
 
+// export const getUsers = async (req: Request, res: Response) => {
+//     try {
+//         // Получение параметров запроса
+//         const { page = 1, limit = 10, sortBy = 'email', sortOrder = 'asc', ...filters } = req.query;
+//
+//         // Преобразование параметров
+//         const pageNumber = parseInt(page as string, 10);
+//         const pageSize = parseInt(limit as string, 10);
+//         const sortOrderValue: SortOrder = sortOrder === 'desc' ? -1 : 1;
+//
+//         // Преобразование фильтров в формат для MongoDB
+//         const query: Record<string, any> = {};
+//         for (const [key, value] of Object.entries(filters)) {
+//             query[key] = value;
+//         }
+//
+//         // Проверка, что sortBy является допустимым полем
+//         if (typeof sortBy !== 'string') {
+//             return res.status(400).send('Invalid sort field');
+//         }
+//
+//         // Получение пользователей с фильтрацией, сортировкой и пагинацией
+//         const users = await User.find(query)
+//             .sort({ [sortBy]: sortOrderValue })
+//             .skip((pageNumber - 1) * pageSize)
+//             .limit(pageSize);
+//
+//         // Подсчет общего количества пользователей
+//         const totalUsers = await User.countDocuments(query);
+//
+//         res.json({
+//             data: users,
+//             page: pageNumber,
+//             pageSize: pageSize,
+//             total: totalUsers,
+//             totalPages: Math.ceil(totalUsers / pageSize),
+//         });
+//     } catch (error) {
+//         res.status(500).send('Error fetching users');
+//     }
+// };
+
+
+
 export const getUsers = async (req: Request, res: Response) => {
     try {
         // Получение параметров запроса
-        const { page = 1, limit = 10, sortBy = 'email', sortOrder = 'asc', ...filters } = req.query;
+        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', ...filters } = req.query;
+        // const { page = 1, limit = 10, sortBy = 'email', sortOrder = 'asc', ...filters } = req.query;
 
         // Преобразование параметров
         const pageNumber = parseInt(page as string, 10);
         const pageSize = parseInt(limit as string, 10);
-        const sortOrderValue: SortOrder = sortOrder === 'desc' ? -1 : 1;
+        const sortOrderValue: 1 | -1 = sortOrder === 'desc' ? -1 : 1;
 
         // Преобразование фильтров в формат для MongoDB
         const query: Record<string, any> = {};
@@ -81,22 +126,57 @@ export const getUsers = async (req: Request, res: Response) => {
         res.status(500).send('Error fetching users');
     }
 };
+
+
+// // Аутентификация пользователя (логин)
+// export const loginUser = async (req: Request, res: Response) => {
+//     const { email, password } = req.body;
+//     try {
+//         const user = await User.findOne({ email });
+//         if (!user) return res.status(400).send('Invalid email or password');
+//
+//         const isMatch = await bcrypt.compare(password, user.password);
+//         if (!isMatch) return res.status(400).send('Invalid email or password');
+//
+//         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '1h' });
+//         res.json({ token });
+//     } catch (error) {
+//         res.status(500).send('Error logging in');
+//     }
+// };
+
+
 // Аутентификация пользователя (логин)
 export const loginUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).send('Invalid email or password');
 
+    if (!email || !password) {
+        return res.status(400).send('Email and password are required');
+    }
+
+    try {
+        // Поиск пользователя по email
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).send('Invalid  email');
+        // if (!user) return res.status(400).send('Invalid  email or password');
+
+        // Сравнение паролей
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).send('Invalid email or password');
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '1h' });
+        // Генерация токена
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '1h' });
+
+        // Отправка токена
         res.json({ token });
     } catch (error) {
+        console.error('Error logging in:', error); // Логирование ошибки
         res.status(500).send('Error logging in');
     }
 };
+
+
+
 
 // Получение информации о текущем пользователе
 export const getCurrentUser = async (req: Request, res: Response) => {

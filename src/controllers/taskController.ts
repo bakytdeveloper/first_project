@@ -39,7 +39,8 @@ export const createTask = async (req: Request, res: Response) => {
 export const getTasks = async (req: Request, res: Response) => {
     try {
         // Получение параметров запроса
-        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'asc', ...filters } = req.query;
+        const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc', ...filters } = req.query;
+        // const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'asc', ...filters } = req.query;
 
         // Преобразование параметров
         const pageNumber = parseInt(page as string, 10);
@@ -47,9 +48,11 @@ export const getTasks = async (req: Request, res: Response) => {
         const sortOrderValue: SortOrder = sortOrder === 'desc' ? -1 : 1; // Используем 1 или -1 для сортировки
 
         // Построение запроса с фильтрацией
-        const query: Record<string, any> = {}; // Типизация query как Record<string, any>
+        // Типизация query как Record<string, any>
+        const query: Record<string, any> = {};
         if (req.user?.role !== 'admin') {
-            query.userId = req.user?.id; // Фильтрация задач текущего пользователя, если не админ
+            // Фильтрация задач текущего пользователя, если не админ
+            query.userId = req.user?.id;
         }
         for (const [key, value] of Object.entries(filters)) {
             query[key] = value;

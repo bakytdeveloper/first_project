@@ -16,7 +16,7 @@ const router = Router();
 router.post('/register', createUser);
 
 // Получение списка пользователей, доступно только для админа пользователям
-router.get('/', authenticateToken, isAdmin, getUsers);
+router.get('/', authenticateToken, getUsers);
 
 // Вход пользователя
 router.post('/login', loginUser);
