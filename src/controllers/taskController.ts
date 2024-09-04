@@ -108,11 +108,29 @@ export const getTasks = async (req: Request, res: Response) => {
 
 
 // Обновление задачи
+// export const updateTask = async (req: Request, res: Response) => {
+//     const taskId = req.params.id;
+//     const updateData = req.body;
+//
+//     try {
+//         const task = await Task.findByIdAndUpdate(taskId, updateData, { new: true });
+//         if (!task) return res.status(404).send('Task not found');
+//         res.json(task);
+//     } catch (error) {
+//         res.status(500).send('Error updating task');
+//     }
+// };
+
 export const updateTask = async (req: Request, res: Response) => {
     const taskId = req.params.id;
     const updateData = req.body;
 
     try {
+        // // Проверяем, что пользователь является администратором
+        // if (req.user?.role !== 'admin') {
+        //     return res.status(403).send('Access denied');
+        // }
+
         const task = await Task.findByIdAndUpdate(taskId, updateData, { new: true });
         if (!task) return res.status(404).send('Task not found');
         res.json(task);
@@ -120,6 +138,29 @@ export const updateTask = async (req: Request, res: Response) => {
         res.status(500).send('Error updating task');
     }
 };
+
+
+
+// Получение задачи по id (для администратора)
+export const getTaskById = async (req: Request, res: Response) => {
+    const taskId = req.params.id;
+
+    try {
+        // // Проверяем, что пользователь является администратором
+        // if (req.user?.role !== 'admin') {
+        //     return res.status(403).send('Access denied');
+        // }
+
+        const task = await Task.findById(taskId).populate('userId', 'name'); // Опционально: populate для получения информации о пользователе
+        if (!task) return res.status(404).send('Task not found');
+        res.json(task);
+    } catch (error) {
+        res.status(500).send('Error fetching task');
+    }
+};
+
+
+
 
 // Удаление задачи
 export const deleteTask = async (req: Request, res: Response) => {
